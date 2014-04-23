@@ -9,7 +9,11 @@
             <ul class="left">
                 {% if user.is_authenticated %}
                     <li>
+                        {% if user.forum_profile %}
                         <a href='{% url 'forum:profile' %}'>{{ user.forum_profile }}</a>
+                        {% else %}
+                        <a href='{% url 'forum:profile' %}'>{% trans 'Profile' %}</a>
+                        {% endif %}
                     </li>
                     <li>
                         <a href='{% url 'forum:messages' %}'>{% trans "Messages" %}</a>
