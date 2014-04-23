@@ -327,12 +327,17 @@ def rate_reply_view(request, pk_forum, pk_thread, pk_reply):
         mimetype='application/json')
 
 
-@login_required
-def register_profile_view(request):
-    next = request.REQUEST.get('next', None)
+class RegisterProfileView(TemplateView):
+    template_name = 'forum/register_profile.html'
 
-    if request.method == 'POST':
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(RegisterProfileView, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        next = request.REQUEST.get('next', None)
         profile, created = Profile.objects.get_or_create(user=request.user)
+        # TODO: make this a event
         box = MessageBox.objects.get_or_create(profile=profile)
         messages.info(request, _("You now have a forum profile! Please, enjoy ; )"))
 
@@ -340,6 +345,3 @@ def register_profile_view(request):
             return redirect(next)
 
         return redirect('forum:index')
-
-    return render(request, 'forum/register_profile.html',
-                  {'next': next})

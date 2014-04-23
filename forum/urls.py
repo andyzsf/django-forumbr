@@ -4,16 +4,17 @@ from django.conf.urls import include, patterns, url
 from .views import IndexView
 from .views import UserMessageView, UserMessagesView, SendMessageView
 from .views import PublicProfileView, ProfileView, EditProfileView
-from .views import CategoryView, ForumView
+from .views import CategoryView, ForumView, RegisterProfileView
 
 urlpatterns = patterns('',
     url(r'^$', IndexView.as_view(), name='index'),
 
     # your own profile
-    url(r'^profile/$', ProfileView.as_view(), name='profile'),
+    url(r'^profile/$', ProfileView.as_view(),
+        name='profile'),
 
-    url(r'^profile/register/',
-        'forum.views.register_profile_view', name='register_profile'),
+    url(r'^profile/register/', RegisterProfileView.as_view(),
+        name='register_profile'),
 
     # edit your own profile
     url(r'^profile/edit/$', EditProfileView.as_view(), name='edit_profile'),
