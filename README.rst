@@ -3,6 +3,9 @@ Django ForumBR
 
 **A simple, everyday django forum**
 
+.. image:: https://travis-ci.org/italomaia/django-forumbr.png?branch=master
+        :target: https://travis-ci.org/italomaia/django-forumbr
+
 Django-forumbr is a project to create a simple, easy-to-use and complete forum
 for django projects on the run.
 
