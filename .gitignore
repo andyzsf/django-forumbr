@@ -1,0 +1,8 @@
+~*
+*.pyc
+*.sqlite
+*.sqlite3
+.idea/
+build/
+dist/
+*.egg-info/

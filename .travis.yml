@@ -1,0 +1,10 @@
+language: python
+python:
+  - "2.7"
+env:
+  - DJANGO_VERSION=1.5
+  - DJANGO_VERSION=1.6.3
+install:
+  - "pip install -q Django==$DJANGO_VERSION"
+  - "python setup.py -q install"
+script: nosetests 
