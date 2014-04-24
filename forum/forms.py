@@ -16,7 +16,6 @@ if THREAD_ALLOW_ATTACHMENT:
 
 
 class MessageForm(forms.ModelForm):
-
     def __init__(self, *args, **kw):
         super(MessageForm, self).__init__(*args, **kw)
         self.fields['message'].required = True
@@ -66,19 +65,19 @@ class ThreadForm(forms.ModelForm):
     if THREAD_ALLOW_IMAGE:
         __field = Thread._meta.get_field('image')
         image = forms.ImageField(
-            label = unicode(__field.verbose_name),
-            help_text = unicode(__field.help_text),
-            validators = [max_upload_size(MAX_THREAD_IMAGE_SIZE)],
-            required = not __field.blank
+            label=unicode(__field.verbose_name),
+            help_text=unicode(__field.help_text),
+            validators=[max_upload_size(MAX_THREAD_IMAGE_SIZE)],
+            required=not __field.blank
         )
 
     if THREAD_ALLOW_ATTACHMENT:
         __field = Thread._meta.get_field('attachment')
         attachment = forms.FileField(
-            label = unicode(__field.verbose_name),
-            help_text = unicode(__field.help_text),
-            validators = [max_upload_size(MAX_THREAD_ATTACH_SIZE), virus_check],
-            required = not __field.blank
+            label=unicode(__field.verbose_name),
+            help_text=unicode(__field.help_text),
+            validators=[max_upload_size(MAX_THREAD_ATTACH_SIZE), virus_check],
+            required=not __field.blank
         )
 
     class Meta:
@@ -104,13 +103,13 @@ class ProfileAdminForm(forms.ModelForm):
 
 class ProfileForm(forms.ModelForm):
     message = forms.CharField(
-        label = _('Signature'),
-        widget = forms.Textarea,
-        required = not Profile._meta.get_field('message').blank)
+        label=_('Signature'),
+        widget=forms.Textarea,
+        required=not Profile._meta.get_field('message').blank)
     avatar = forms.ImageField(
         label=Profile._meta.get_field('avatar').verbose_name.title(),
         validators=[max_upload_size(AVATAR_MAX_SIZE)],
-        required = not Profile._meta.get_field('avatar').blank
+        required=not Profile._meta.get_field('avatar').blank
     )
 
     class Meta:
