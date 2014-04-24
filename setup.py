@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name="django-forumbr",
-    version="0.4.1",
+    version="0.4.0.1",
     packages=[
         "forum",
         "forum.templatetags",
