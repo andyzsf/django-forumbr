@@ -4,6 +4,7 @@
 *.sqlite3
 *.orig
 .idea/
+media_root/
 build/
 dist/
 *.egg-info/
