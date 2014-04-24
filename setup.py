@@ -1,10 +1,9 @@
 # -*- coding:utf-8 -*-
-import sys
 import setuptools
 
 setuptools.setup(
     name="django-forumbr",
-    version="0.4",
+    version="0.4.1",
     packages=[
         "forum",
         "forum.templatetags",
