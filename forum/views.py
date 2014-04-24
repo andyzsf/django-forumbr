@@ -250,32 +250,67 @@ class ThreadView(ListView):
         return super(ThreadView, self).get(request, *args, **kwargs)
 
 
-@login_required
-@profile_required
-@transaction.atomic
-def new_thread_view(request, pk_forum, pk_thread=None):
-    forum = get_object(Forum.objects.active(), pk=pk_forum)
-    category = forum.category
+class NewThreadView(ProtectedMixin, CreateView):
+    form_classes = [ThreadForm, ReplyForm]
+    context_object_names = ['thread_form', 'reply_form']
+    template_name = 'forum/new_thread.html'
 
-    thread_form = ThreadForm(
-        request.POST or None,
-        request.method == 'POST' and request.FILES or None)
-    reply_form = ReplyForm(
-        request.POST or None,
-        request.method == 'POST' and request.FILES or None)
-    profile = request.user.forum_profile
+    @transaction.atomic
+    def dispatch(self, *args, **kwargs):
+        self.forum = get_object(
+            Forum.objects.active(),
+            pk=kwargs['pk_forum'])
+        self.category = self.forum.category
+        self.object = None
 
-    if thread_form.is_bound and reply_form.is_bound \
-            and thread_form.is_valid() and reply_form.is_valid():
-        new_thread = thread_form.save(profile, forum)
-        reply_form.save(profile, forum, new_thread)
+        return super(NewThreadView, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(NewThreadView, self).get_context_data(**kwargs)
+        context['forum'] = self.forum
+        context['category'] = self.category
+        return context
+
+    def get_form_class_list(self):
+        return self.form_classes
+
+    def get_form_list(self, form_classes):
+        return [form_class(**self.get_form_kwargs())
+                for form_class in form_classes]
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests and instantiates a blank version of the form.
+        """
+        form_class_list = self.get_form_class_list()
+        form_list = self.get_form_list(form_class_list)
+        context = self.get_context_data()
+        for i in range(len(self.context_object_names)):
+            name = self.context_object_names[i]
+            context[name] = form_list[i]
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance with the passed
+        POST variables and then checked for validity.
+        """
+        form_class_list = self.get_form_class_list()
+        form_list = self.get_form_list(form_class_list)
+        if all([form.is_valid() for form in form_list]):
+            return self.form_valid(form_list)
+        else:
+            return self.form_invalid(form_list)
+
+    def form_valid(self, form_list):
+        new_thread = None
+
+        for form in form_list:
+            if isinstance(form, ThreadForm):
+                new_thread = form.save(self.profile, self.forum)
+            if isinstance(form, ReplyForm):
+                form.save(self.profile, self.forum, new_thread)
         return redirect(new_thread)
-    return render(request, 'forum/new_thread.html', {
-        'category': category,
-        'forum': forum,
-        'thread_form': thread_form,
-        'reply_form': reply_form
-    })
 
 
 @login_required
