@@ -3,25 +3,29 @@ __all__ = ('max_upload_size', 'content_type_check', 'virus_check')
 
 import logging
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 
 log = logging.Logger(__name__)
+scan_file = lambda x: None
 
 try:
     import pyclamd
 
-    scan_file = lambda x: [0]
-
     clam_socket = pyclamd.ClamdUnixSocket()
     clam_socket.ping()
     scan_file = clam_socket.scan_file
+
+    if 'django.core.files.uploadhandler.MemoryFileUploadHandler' in settings.FILE_UPLOAD_HANDLERS:
+        log.warn(ugettext('File virs scan will not work properly if uploadhandler.MemoryFileUploadHandler is installed.'))
+
 except ImportError, e:
-    log.warn(ugettext('Please, install clamav and pyclamd if you want virus checking for user uploaded files.'))
+    log.info(ugettext('Please, install clamav and pyclamd if you want virus checking for user uploaded files.'))
 except pyclamd.ConnectionError:
-        pass
+    pass
 
 try:
     import magic
