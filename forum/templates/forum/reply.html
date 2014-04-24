@@ -25,9 +25,9 @@
 {% include "forum/includes/breadcrumbs.html" %}
 
 <div class="row">
-    <p>
+    <h3>
         <strong>{% trans "Reply to" %} <a href="{{ thread.get_absolute_url }}">{{ thread }}</a></strong>
-    </p>
+    </h3>
     <form method="post">{% csrf_token %}
         {% include "forum/form.html" with no_label=1 %}
         <input class="tiny button" type="submit" name="send" value='{% trans "Send" %}' />
