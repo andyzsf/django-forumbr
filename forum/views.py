@@ -6,7 +6,7 @@ import json
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.core.paginator import Paginator
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404 as get_object
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
@@ -16,6 +16,7 @@ from django.utils.decorators import available_attrs
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.edit import FormView, CreateView, UpdateView
+from django.views.generic.edit import FormMixin
 
 from app_settings import *
 from .constants import MARKUP_EDITORS
@@ -219,36 +220,34 @@ class ForumView(TemplateView):
         return context
 
 
-class ThreadView(TemplateView):
+class ThreadView(ListView):
+    pk_url_kwarg = 'pk_thread'
     template_name = 'forum/thread.html'
+    paginate_by = PAGINATE_REPLIES_BY
 
+    def dispatch(self, request, *args, **kwargs):
+        self.forum = get_object(Forum.objects.active(), pk=kwargs['pk_forum'])
+        self.category = self.forum.category
+        self.thread = self.get_object(self.forum.threads.active())
+        return super(ThreadView, self).dispatch(request, *args, **kwargs)
 
-def thread_view(request, pk_forum, pk_thread):
-    forum = get_object(Forum.objects.active(), pk=pk_forum)
-    category = forum.category
-    threads = forum.threads.active()
-    thread = get_object(threads, pk=pk_thread)
-    replies = thread.replies.active()
-    page_number = request.GET.get('page', 1)
-    object_list = Paginator(replies, PAGINATE_REPLIES_BY).page(page_number)
-    form = None
+    def get_object(self, queryset):
+        pk = self.kwargs.get(self.pk_url_kwarg, None)
+        return get_object(queryset, pk=pk)
 
-    # FIXME - form reference problem
-    if ALLOW_INLINE_REPLY:
-        form = ReplyForm(request.POST or None)
+    def get_queryset(self):
+        return self.thread.replies.active()
 
-        if form.is_bound and form.is_valid():
-            new_reply = form.save()
-            return redirect(new_reply)
+    def get_context_data(self, **kwargs):
+        context = super(ThreadView, self).get_context_data(**kwargs)
+        context['forum'] = self.forum
+        context['category'] = self.category
+        context['thread'] = self.thread
+        return context
 
-    thread.update_views(request)
-    return render(request, 'forum/thread.html', {
-        'category': category,
-        'form': form,
-        'forum': forum,
-        'thread': thread,
-        'object_list': object_list
-    })
+    def get(self, request, *args, **kwargs):
+        self.thread.update_views(request)
+        return super(ThreadView, self).get(request, *args, **kwargs)
 
 
 @login_required

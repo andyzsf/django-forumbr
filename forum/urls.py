@@ -5,6 +5,7 @@ from .views import IndexView
 from .views import UserMessageView, UserMessagesView, SendMessageView
 from .views import PublicProfileView, ProfileView, EditProfileView
 from .views import CategoryView, ForumView, RegisterProfileView
+from .views import ThreadView
 
 urlpatterns = patterns('',
     url(r'^$', IndexView.as_view(), name='index'),
@@ -46,7 +47,7 @@ urlpatterns = patterns('',
 
     # read a thread
     url(r'^(?P<pk_forum>\d+)/threads/(?P<pk_thread>\d+)/$',
-        'forum.views.thread_view', name='thread'),
+        ThreadView.as_view(), name='thread'),
 #
 #    # edit a thread
 #    (r'^(?P<pk_forum>\d+)/threads/(?P<pk_thread>\d+)/edit/$',
