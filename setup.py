@@ -20,7 +20,7 @@ setuptools.setup(
 
     author="Italo Maia",
     author_email="italo.maia@gmail.com",
-    url="https://bitbucket.org/italomaia/django-forumbr",
+    url="https://github.com/italomaia/django-forumbr",
     license="http://www.apache.org/licenses/LICENSE-2.0",
     description="Simple and complete django forum solution",
     keywords="django forum python",
